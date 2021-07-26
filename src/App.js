@@ -3,8 +3,37 @@ import React from 'react'
 import { login, logout } from './utils'
 import './global.css'
 
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+
 import getConfig from './config'
 const { networkId } = getConfig(process.env.NODE_ENV || 'development')
+
+// material UI AppBar with custom styling
+class MyAppBar extends React.Component {
+  render() {
+    return (
+      <>
+      <AppBar  position="static" style={{backgroundColor: "transparent", boxShadow: "none"}}>
+        <Toolbar >
+            <Typography variant="h6" style={{ flex: 1 }}>
+              Vaccine Verify
+            </Typography>
+            { /* button to sign in or sign out */
+              window.walletConnection.isSignedIn() ?
+              <Button style={{ color: 'turquoise'}} onClick={logout} >Logout</Button>
+                : <Button style={{ color: 'turquoise'}} onClick={login} >Health Center Login</Button>
+             }
+          </Toolbar>
+      </AppBar>
+      </>
+    );
+  }
+}
+
 
 export default function App() {
   // use React Hooks to store greeting in component state
@@ -40,6 +69,8 @@ export default function App() {
   // if not signed in, return early with sign-in prompt
   if (!window.walletConnection.isSignedIn()) {
     return (
+      <>
+      <MyAppBar/>
       <main>
         <h1>Welcome to NEAR!</h1>
         <p>
@@ -52,22 +83,15 @@ export default function App() {
           network ("mainnet") wallet, but the NEAR Tokens on testnet aren't
           convertible to other currencies – they're just for testing!
         </p>
-        <p>
-          Go ahead and click the button below to try it out:
-        </p>
-        <p style={{ textAlign: 'center', marginTop: '2.5em' }}>
-          <button onClick={login}>Sign in</button>
-        </p>
       </main>
+      </>
     )
   }
 
   return (
     // use React Fragment, <>, to avoid wrapping elements in unnecessary divs
     <>
-      <button className="link" style={{ float: 'right' }} onClick={logout}>
-        Sign out
-      </button>
+      <MyAppBar/>
       <main>
         <h1>
           <label
