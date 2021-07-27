@@ -12,9 +12,19 @@
  *
  */
 
-import { Context, logging, storage } from 'near-sdk-as'
+import { Context, logging, storage, PersistentMap } from 'near-sdk-as'
 
 const DEFAULT_MESSAGE = 'Hello'
+
+// represents a certificate
+@nearBindgen
+class CertificateInfo {
+  verifier: string;
+  date: string;
+}
+
+// map of certificates: recipient to certificate data
+const certificates = new PersistentMap<string, CertificateInfo>("certificates list");
 
 // Exported functions will be part of the public interface for your smart contract.
 // Feel free to extract behavior to non-exported functions!
@@ -36,5 +46,21 @@ export function setGreeting(message: string): void {
     'Saving greeting "' + message + '" for account "' + account_id + '"'
   )
 
+  // add cert to map
+  certificates.set(message, {
+    verifier: account_id,
+    date: "today",
+  })
+  logging.log('cert added by: ' + `${certificates.getSome(message).verifier}`)
+
   storage.set(account_id, message)
+}
+
+// deletes a specific cert from map
+export function deleteCertificate(recipient: string): void {
+  logging.log("trying to delete");
+  if (certificates.contains(recipient)) {
+    certificates.delete(recipient);
+    logging.log(recipient + ' still there? ' + `${certificates.contains(recipient)}`)
+  }
 }

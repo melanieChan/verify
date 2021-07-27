@@ -46651,7 +46651,7 @@ async function initContract() {
     // View methods are read only. They don't modify the state, but usually return some value.
     viewMethods: ['getGreeting'],
     // Change methods can modify the state. But you don't receive the returned value when called.
-    changeMethods: ['setGreeting']
+    changeMethods: ['setGreeting', 'deleteCertificate']
   });
 }
 
@@ -62833,7 +62833,19 @@ function App() {
       padding: "18px 36px",
       fontSize: "18px"
     }
-  }, "Send")))), /*#__PURE__*/_react.default.createElement("p", null, "Vaccination certificate sent to: ", greeting), /*#__PURE__*/_react.default.createElement("p", null, "Look at that! A Hello World app! This greeting is stored on the NEAR blockchain. Check it out:"), /*#__PURE__*/_react.default.createElement("ol", null, /*#__PURE__*/_react.default.createElement("li", null, "Look in ", /*#__PURE__*/_react.default.createElement("code", null, "src/App.js"), " and ", /*#__PURE__*/_react.default.createElement("code", null, "src/utils.js"), " \u2013 you'll see ", /*#__PURE__*/_react.default.createElement("code", null, "getGreeting"), " and ", /*#__PURE__*/_react.default.createElement("code", null, "setGreeting"), " being called on ", /*#__PURE__*/_react.default.createElement("code", null, "contract"), ". What's this?"), /*#__PURE__*/_react.default.createElement("li", null, "Ultimately, this ", /*#__PURE__*/_react.default.createElement("code", null, "contract"), " code is defined in ", /*#__PURE__*/_react.default.createElement("code", null, "assembly/main.ts"), " \u2013 this is the source code for your ", /*#__PURE__*/_react.default.createElement("a", {
+  }, "Send")))), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("p", null, "Vaccination certificate sent to: ", greeting), /*#__PURE__*/_react.default.createElement("button", {
+    onClick: async event => {
+      event.preventDefault();
+
+      try {
+        await window.contract.deleteCertificate({
+          recipient: greeting
+        });
+      } catch (e) {
+        alert(e);
+      }
+    }
+  }, " delete ")), /*#__PURE__*/_react.default.createElement("p", null, "Look at that! A Hello World app! This greeting is stored on the NEAR blockchain. Check it out:"), /*#__PURE__*/_react.default.createElement("ol", null, /*#__PURE__*/_react.default.createElement("li", null, "Look in ", /*#__PURE__*/_react.default.createElement("code", null, "src/App.js"), " and ", /*#__PURE__*/_react.default.createElement("code", null, "src/utils.js"), " \u2013 you'll see ", /*#__PURE__*/_react.default.createElement("code", null, "getGreeting"), " and ", /*#__PURE__*/_react.default.createElement("code", null, "setGreeting"), " being called on ", /*#__PURE__*/_react.default.createElement("code", null, "contract"), ". What's this?"), /*#__PURE__*/_react.default.createElement("li", null, "Ultimately, this ", /*#__PURE__*/_react.default.createElement("code", null, "contract"), " code is defined in ", /*#__PURE__*/_react.default.createElement("code", null, "assembly/main.ts"), " \u2013 this is the source code for your ", /*#__PURE__*/_react.default.createElement("a", {
     target: "_blank",
     rel: "noreferrer",
     href: "https://docs.near.org/docs/develop/contracts/overview"
@@ -62907,7 +62919,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65424" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51961" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

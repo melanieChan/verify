@@ -196,7 +196,24 @@ export default function App() {
             </div>
           </fieldset>
         </form>
-        <p>Vaccination certificate sent to: {greeting}</p>
+
+        {/*  details of certificate sent */}
+        <div>
+          <p>Vaccination certificate sent to: {greeting}</p>
+
+          {/*  delete button */}
+          <button onClick={ async event => {
+            event.preventDefault()
+            try {
+              await window.contract.deleteCertificate({
+                recipient: greeting
+              })
+            } catch (e) {
+              alert(e)
+          }
+        }}> delete </button>
+        </div>
+
         <p>
           Look at that! A Hello World app! This greeting is stored on the NEAR blockchain. Check it out:
         </p>
