@@ -36,11 +36,12 @@ class MyAppBar extends React.Component {
 
 
 export default function App() {
-  // use React Hooks to store greeting in component state
   const [greeting, setGreeting] = React.useState()
 
   // when the user has not yet interacted with the form, disable the button
   const [buttonDisabled, setButtonDisabled] = React.useState(true)
+
+  const [certSearchButtonDisabled, setCertSearchButtonDisabled] = React.useState(true)
 
   // after submitting the form, we want to show Notification
   const [showNotification, setShowNotification] = React.useState(false)
@@ -52,7 +53,7 @@ export default function App() {
       // in this case, we only care to query the contract when signed in
       if (window.walletConnection.isSignedIn()) {
 
-        // window.contract is set by initContract in index.js
+        // load data from contract
         window.contract.getGreeting({ accountId: window.accountId })
           .then(greetingFromContract => {
             setGreeting(greetingFromContract)
@@ -83,13 +84,31 @@ export default function App() {
           network ("mainnet") wallet, but the NEAR Tokens on testnet aren't
           convertible to other currencies – they're just for testing!
         </p>
+
+        {/* Searching for verified accounts */}
+        <form>
+          <div style={{ display: 'flex' }}>
+            {/* Search field */}
+            <input style={{ flex: 1 }}
+                onChange={e => setCertSearchButtonDisabled(e.target.value === "") /* disable if empty input */}
+                />
+
+            {/* Search submit button */}
+            <Button variant="outlined" disabled={certSearchButtonDisabled} type="submit" style={{
+              borderBottomRightRadius: 35, borderTopRightRadius: 35, borderColor: "darkturquoise",
+              color: "darkturquoise",
+              padding: "18px 36px",
+              fontSize: "18px" }}>
+              Search
+              </Button>
+            </div>
+        </form>
       </main>
       </>
     )
   }
 
   return (
-    // use React Fragment, <>, to avoid wrapping elements in unnecessary divs
     <>
       <MyAppBar/>
       <main>
@@ -101,10 +120,8 @@ export default function App() {
               borderBottom: '2px solid var(--secondary)'
             }}
           >
-            {greeting}
           </label>
-          {' '/* React trims whitespace around tags; insert literal space character when needed */}
-          {window.accountId}!
+          Hi {window.accountId},
         </h1>
         <form onSubmit={async event => {
           event.preventDefault()
@@ -139,7 +156,6 @@ export default function App() {
           // update local `greeting` variable to match persisted value
           setGreeting(newGreeting)
 
-          // show Notification
           setShowNotification(true)
 
           // remove Notification again after css animation completes
@@ -157,25 +173,30 @@ export default function App() {
                 marginBottom: '0.5em'
               }}
             >
-              Change greeting
+              Send vaccination certificate to
             </label>
             <div style={{ display: 'flex' }}>
               <input
-                autoComplete="off"
                 defaultValue={greeting}
                 id="greeting"
                 onChange={e => setButtonDisabled(e.target.value === greeting)}
                 style={{ flex: 1 }}
               />
-              <button
-                disabled={buttonDisabled}
-                style={{ borderRadius: '0 5px 5px 0' }}
-              >
-                Save
-              </button>
+              {/* submit button */}
+              <Button variant="outlined" disabled={buttonDisabled} type="submit" style={{
+                borderBottomRightRadius: 35,
+                borderTopRightRadius: 35,
+                borderColor: "darkturquoise",
+
+                color: "darkturquoise",
+                padding: "18px 36px",
+                fontSize: "18px" }}>
+                Send
+                </Button>
             </div>
           </fieldset>
         </form>
+        <p>Vaccination certificate sent to: {greeting}</p>
         <p>
           Look at that! A Hello World app! This greeting is stored on the NEAR blockchain. Check it out:
         </p>

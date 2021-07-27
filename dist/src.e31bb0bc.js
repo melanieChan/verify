@@ -62704,11 +62704,12 @@ class MyAppBar extends _react.default.Component {
 }
 
 function App() {
-  // use React Hooks to store greeting in component state
   const [greeting, setGreeting] = _react.default.useState(); // when the user has not yet interacted with the form, disable the button
 
 
-  const [buttonDisabled, setButtonDisabled] = _react.default.useState(true); // after submitting the form, we want to show Notification
+  const [buttonDisabled, setButtonDisabled] = _react.default.useState(true);
+
+  const [certSearchButtonDisabled, setCertSearchButtonDisabled] = _react.default.useState(true); // after submitting the form, we want to show Notification
 
 
   const [showNotification, setShowNotification] = _react.default.useState(false); // The useEffect hook can be used to fire side-effects during render
@@ -62718,7 +62719,7 @@ function App() {
   _react.default.useEffect(() => {
     // in this case, we only care to query the contract when signed in
     if (window.walletConnection.isSignedIn()) {
-      // window.contract is set by initContract in index.js
+      // load data from contract
       window.contract.getGreeting({
         accountId: window.accountId
       }).then(greetingFromContract => {
@@ -62732,97 +62733,119 @@ function App() {
 
 
   if (!window.walletConnection.isSignedIn()) {
-    return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(MyAppBar, null), /*#__PURE__*/_react.default.createElement("main", null, /*#__PURE__*/_react.default.createElement("h1", null, "Welcome to NEAR!"), /*#__PURE__*/_react.default.createElement("p", null, "To make use of the NEAR blockchain, you need to sign in. The button below will sign you in using NEAR Wallet."), /*#__PURE__*/_react.default.createElement("p", null, "By default, when your app runs in \"development\" mode, it connects to a test network (\"testnet\") wallet. This works just like the main network (\"mainnet\") wallet, but the NEAR Tokens on testnet aren't convertible to other currencies \u2013 they're just for testing!")));
-  }
-
-  return (
-    /*#__PURE__*/
-    // use React Fragment, <>, to avoid wrapping elements in unnecessary divs
-    _react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(MyAppBar, null), /*#__PURE__*/_react.default.createElement("main", null, /*#__PURE__*/_react.default.createElement("h1", null, /*#__PURE__*/_react.default.createElement("label", {
-      htmlFor: "greeting",
-      style: {
-        color: 'var(--secondary)',
-        borderBottom: '2px solid var(--secondary)'
-      }
-    }, greeting), ' '
-    /* React trims whitespace around tags; insert literal space character when needed */
-    , window.accountId, "!"), /*#__PURE__*/_react.default.createElement("form", {
-      onSubmit: async event => {
-        event.preventDefault(); // get elements from the form using their id attribute
-
-        const {
-          fieldset,
-          greeting
-        } = event.target.elements; // hold onto new user-entered value from React's SynthenticEvent for use after `await` call
-
-        const newGreeting = greeting.value; // disable the form while the value gets updated on-chain
-
-        fieldset.disabled = true;
-
-        try {
-          // make an update call to the smart contract
-          await window.contract.setGreeting({
-            // pass the value that the user entered in the greeting field
-            message: newGreeting
-          });
-        } catch (e) {
-          alert('Something went wrong! ' + 'Maybe you need to sign out and back in? ' + 'Check your browser console for more info.');
-          throw e;
-        } finally {
-          // re-enable the form, whether the call succeeded or failed
-          fieldset.disabled = false;
-        } // update local `greeting` variable to match persisted value
-
-
-        setGreeting(newGreeting); // show Notification
-
-        setShowNotification(true); // remove Notification again after css animation completes
-        // this allows it to be shown again next time the form is submitted
-
-        setTimeout(() => {
-          setShowNotification(false);
-        }, 11000);
-      }
-    }, /*#__PURE__*/_react.default.createElement("fieldset", {
-      id: "fieldset"
-    }, /*#__PURE__*/_react.default.createElement("label", {
-      htmlFor: "greeting",
-      style: {
-        display: 'block',
-        color: 'var(--gray)',
-        marginBottom: '0.5em'
-      }
-    }, "Change greeting"), /*#__PURE__*/_react.default.createElement("div", {
+    return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(MyAppBar, null), /*#__PURE__*/_react.default.createElement("main", null, /*#__PURE__*/_react.default.createElement("h1", null, "Welcome to NEAR!"), /*#__PURE__*/_react.default.createElement("p", null, "To make use of the NEAR blockchain, you need to sign in. The button below will sign you in using NEAR Wallet."), /*#__PURE__*/_react.default.createElement("p", null, "By default, when your app runs in \"development\" mode, it connects to a test network (\"testnet\") wallet. This works just like the main network (\"mainnet\") wallet, but the NEAR Tokens on testnet aren't convertible to other currencies \u2013 they're just for testing!"), /*#__PURE__*/_react.default.createElement("form", null, /*#__PURE__*/_react.default.createElement("div", {
       style: {
         display: 'flex'
       }
     }, /*#__PURE__*/_react.default.createElement("input", {
-      autoComplete: "off",
-      defaultValue: greeting,
-      id: "greeting",
-      onChange: e => setButtonDisabled(e.target.value === greeting),
       style: {
         flex: 1
-      }
-    }), /*#__PURE__*/_react.default.createElement("button", {
-      disabled: buttonDisabled,
+      },
+      onChange: e => setCertSearchButtonDisabled(e.target.value === "")
+      /* disable if empty input */
+
+    }), /*#__PURE__*/_react.default.createElement(_Button.default, {
+      variant: "outlined",
+      disabled: certSearchButtonDisabled,
+      type: "submit",
       style: {
-        borderRadius: '0 5px 5px 0'
+        borderBottomRightRadius: 35,
+        borderTopRightRadius: 35,
+        borderColor: "darkturquoise",
+        color: "darkturquoise",
+        padding: "18px 36px",
+        fontSize: "18px"
       }
-    }, "Save")))), /*#__PURE__*/_react.default.createElement("p", null, "Look at that! A Hello World app! This greeting is stored on the NEAR blockchain. Check it out:"), /*#__PURE__*/_react.default.createElement("ol", null, /*#__PURE__*/_react.default.createElement("li", null, "Look in ", /*#__PURE__*/_react.default.createElement("code", null, "src/App.js"), " and ", /*#__PURE__*/_react.default.createElement("code", null, "src/utils.js"), " \u2013 you'll see ", /*#__PURE__*/_react.default.createElement("code", null, "getGreeting"), " and ", /*#__PURE__*/_react.default.createElement("code", null, "setGreeting"), " being called on ", /*#__PURE__*/_react.default.createElement("code", null, "contract"), ". What's this?"), /*#__PURE__*/_react.default.createElement("li", null, "Ultimately, this ", /*#__PURE__*/_react.default.createElement("code", null, "contract"), " code is defined in ", /*#__PURE__*/_react.default.createElement("code", null, "assembly/main.ts"), " \u2013 this is the source code for your ", /*#__PURE__*/_react.default.createElement("a", {
-      target: "_blank",
-      rel: "noreferrer",
-      href: "https://docs.near.org/docs/develop/contracts/overview"
-    }, "smart contract"), "."), /*#__PURE__*/_react.default.createElement("li", null, "When you run ", /*#__PURE__*/_react.default.createElement("code", null, "yarn dev"), ", the code in ", /*#__PURE__*/_react.default.createElement("code", null, "assembly/main.ts"), " gets deployed to the NEAR testnet. You can see how this happens by looking in ", /*#__PURE__*/_react.default.createElement("code", null, "package.json"), " at the ", /*#__PURE__*/_react.default.createElement("code", null, "scripts"), " section to find the ", /*#__PURE__*/_react.default.createElement("code", null, "dev"), " command.")), /*#__PURE__*/_react.default.createElement("hr", null), /*#__PURE__*/_react.default.createElement("p", null, "To keep learning, check out ", /*#__PURE__*/_react.default.createElement("a", {
-      target: "_blank",
-      rel: "noreferrer",
-      href: "https://docs.near.org"
-    }, "the NEAR docs"), " or look through some ", /*#__PURE__*/_react.default.createElement("a", {
-      target: "_blank",
-      rel: "noreferrer",
-      href: "https://examples.near.org"
-    }, "example apps"), ".")), showNotification && /*#__PURE__*/_react.default.createElement(Notification, null))
-  );
+    }, "Search")))));
+  }
+
+  return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(MyAppBar, null), /*#__PURE__*/_react.default.createElement("main", null, /*#__PURE__*/_react.default.createElement("h1", null, /*#__PURE__*/_react.default.createElement("label", {
+    htmlFor: "greeting",
+    style: {
+      color: 'var(--secondary)',
+      borderBottom: '2px solid var(--secondary)'
+    }
+  }), "Hi ", window.accountId, ","), /*#__PURE__*/_react.default.createElement("form", {
+    onSubmit: async event => {
+      event.preventDefault(); // get elements from the form using their id attribute
+
+      const {
+        fieldset,
+        greeting
+      } = event.target.elements; // hold onto new user-entered value from React's SynthenticEvent for use after `await` call
+
+      const newGreeting = greeting.value; // disable the form while the value gets updated on-chain
+
+      fieldset.disabled = true;
+
+      try {
+        // make an update call to the smart contract
+        await window.contract.setGreeting({
+          // pass the value that the user entered in the greeting field
+          message: newGreeting
+        });
+      } catch (e) {
+        alert('Something went wrong! ' + 'Maybe you need to sign out and back in? ' + 'Check your browser console for more info.');
+        throw e;
+      } finally {
+        // re-enable the form, whether the call succeeded or failed
+        fieldset.disabled = false;
+      } // update local `greeting` variable to match persisted value
+
+
+      setGreeting(newGreeting);
+      setShowNotification(true); // remove Notification again after css animation completes
+      // this allows it to be shown again next time the form is submitted
+
+      setTimeout(() => {
+        setShowNotification(false);
+      }, 11000);
+    }
+  }, /*#__PURE__*/_react.default.createElement("fieldset", {
+    id: "fieldset"
+  }, /*#__PURE__*/_react.default.createElement("label", {
+    htmlFor: "greeting",
+    style: {
+      display: 'block',
+      color: 'var(--gray)',
+      marginBottom: '0.5em'
+    }
+  }, "Send vaccination certificate to"), /*#__PURE__*/_react.default.createElement("div", {
+    style: {
+      display: 'flex'
+    }
+  }, /*#__PURE__*/_react.default.createElement("input", {
+    defaultValue: greeting,
+    id: "greeting",
+    onChange: e => setButtonDisabled(e.target.value === greeting),
+    style: {
+      flex: 1
+    }
+  }), /*#__PURE__*/_react.default.createElement(_Button.default, {
+    variant: "outlined",
+    disabled: buttonDisabled,
+    type: "submit",
+    style: {
+      borderBottomRightRadius: 35,
+      borderTopRightRadius: 35,
+      borderColor: "darkturquoise",
+      color: "darkturquoise",
+      padding: "18px 36px",
+      fontSize: "18px"
+    }
+  }, "Send")))), /*#__PURE__*/_react.default.createElement("p", null, "Vaccination certificate sent to: ", greeting), /*#__PURE__*/_react.default.createElement("p", null, "Look at that! A Hello World app! This greeting is stored on the NEAR blockchain. Check it out:"), /*#__PURE__*/_react.default.createElement("ol", null, /*#__PURE__*/_react.default.createElement("li", null, "Look in ", /*#__PURE__*/_react.default.createElement("code", null, "src/App.js"), " and ", /*#__PURE__*/_react.default.createElement("code", null, "src/utils.js"), " \u2013 you'll see ", /*#__PURE__*/_react.default.createElement("code", null, "getGreeting"), " and ", /*#__PURE__*/_react.default.createElement("code", null, "setGreeting"), " being called on ", /*#__PURE__*/_react.default.createElement("code", null, "contract"), ". What's this?"), /*#__PURE__*/_react.default.createElement("li", null, "Ultimately, this ", /*#__PURE__*/_react.default.createElement("code", null, "contract"), " code is defined in ", /*#__PURE__*/_react.default.createElement("code", null, "assembly/main.ts"), " \u2013 this is the source code for your ", /*#__PURE__*/_react.default.createElement("a", {
+    target: "_blank",
+    rel: "noreferrer",
+    href: "https://docs.near.org/docs/develop/contracts/overview"
+  }, "smart contract"), "."), /*#__PURE__*/_react.default.createElement("li", null, "When you run ", /*#__PURE__*/_react.default.createElement("code", null, "yarn dev"), ", the code in ", /*#__PURE__*/_react.default.createElement("code", null, "assembly/main.ts"), " gets deployed to the NEAR testnet. You can see how this happens by looking in ", /*#__PURE__*/_react.default.createElement("code", null, "package.json"), " at the ", /*#__PURE__*/_react.default.createElement("code", null, "scripts"), " section to find the ", /*#__PURE__*/_react.default.createElement("code", null, "dev"), " command.")), /*#__PURE__*/_react.default.createElement("hr", null), /*#__PURE__*/_react.default.createElement("p", null, "To keep learning, check out ", /*#__PURE__*/_react.default.createElement("a", {
+    target: "_blank",
+    rel: "noreferrer",
+    href: "https://docs.near.org"
+  }, "the NEAR docs"), " or look through some ", /*#__PURE__*/_react.default.createElement("a", {
+    target: "_blank",
+    rel: "noreferrer",
+    href: "https://examples.near.org"
+  }, "example apps"), ".")), showNotification && /*#__PURE__*/_react.default.createElement(Notification, null));
 } // this component gets rendered by App after the form is submitted
 
 
