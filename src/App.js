@@ -47,8 +47,8 @@ export default function App() {
   const [showNotification, setShowNotification] = React.useState(false)
 
   const [recordRecipient, setRecordRecipient] = React.useState("")
-  var recordVerifier = ""
-  var recordDate = ""
+  const [recordVerifier, setRecordVerifier] = React.useState("")
+  const [recordDate, setRecordDate] = React.useState("")
 
   // The useEffect hook can be used to fire side-effects during render
   // Learn more: https://reactjs.org/docs/hooks-intro.html
@@ -96,8 +96,8 @@ export default function App() {
               if (certificateInfo !== null) {
                 // update ui to show
                 setRecordRecipient(searchForMe);
-                recordVerifier = certificateInfo.verifier;
-                recordDate = certificateInfo.date;
+                setRecordVerifier(certificateInfo.verifier);
+                setRecordDate(certificateInfo.date);
                 console.log(`${recordVerifier} ${recordDate}`);
               } else {
                 alert(`No records found for ${searchForMe}`);
@@ -127,6 +127,14 @@ export default function App() {
               </Button>
             </div>
         </form>
+        { /* display certificate search result */
+          recordRecipient != "" ?
+          <div>
+            <p>{recordRecipient} was vaccined <br/> on {recordDate} <br/> Verified by {recordVerifier}</p>
+          </div>
+          :
+          <></>
+        }
       </main>
       </>
     )

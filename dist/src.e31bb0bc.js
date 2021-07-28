@@ -62716,9 +62716,11 @@ function App() {
 
   const [recordRecipient, setRecordRecipient] = _react.default.useState("");
 
-  var recordVerifier = "";
-  var recordDate = ""; // The useEffect hook can be used to fire side-effects during render
+  const [recordVerifier, setRecordVerifier] = _react.default.useState("");
+
+  const [recordDate, setRecordDate] = _react.default.useState(""); // The useEffect hook can be used to fire side-effects during render
   // Learn more: https://reactjs.org/docs/hooks-intro.html
+
 
   _react.default.useEffect(() => {
     // in this case, we only care to query the contract when signed in
@@ -62751,8 +62753,8 @@ function App() {
             if (certificateInfo !== null) {
               // update ui to show
               setRecordRecipient(searchForMe);
-              recordVerifier = certificateInfo.verifier;
-              recordDate = certificateInfo.date;
+              setRecordVerifier(certificateInfo.verifier);
+              setRecordDate(certificateInfo.date);
               console.log(`${recordVerifier} ${recordDate}`);
             } else {
               alert(`No records found for ${searchForMe}`);
@@ -62787,7 +62789,9 @@ function App() {
         padding: "18px 36px",
         fontSize: "18px"
       }
-    }, "Search")))));
+    }, "Search"))),
+    /* display certificate search result */
+    recordRecipient != "" ? /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("p", null, recordRecipient, " was vaccined ", /*#__PURE__*/_react.default.createElement("br", null), " on ", recordDate, " ", /*#__PURE__*/_react.default.createElement("br", null), " Verified by ", recordVerifier)) : /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null)));
   }
 
   return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(MyAppBar, null), /*#__PURE__*/_react.default.createElement("main", null, /*#__PURE__*/_react.default.createElement("h1", null, /*#__PURE__*/_react.default.createElement("label", {
