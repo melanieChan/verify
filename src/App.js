@@ -73,17 +73,8 @@ export default function App() {
       <>
       <MyAppBar/>
       <main>
-        <h1>Welcome to NEAR!</h1>
-        <p>
-          To make use of the NEAR blockchain, you need to sign in. The button
-          below will sign you in using NEAR Wallet.
-        </p>
-        <p>
-          By default, when your app runs in "development" mode, it connects
-          to a test network ("testnet") wallet. This works just like the main
-          network ("mainnet") wallet, but the NEAR Tokens on testnet aren't
-          convertible to other currencies – they're just for testing!
-        </p>
+        <h1>Verify</h1>
+        <p> Search for a user to check their vaccination status </p>
 
         {/* Searching for verified accounts */}
         <form>

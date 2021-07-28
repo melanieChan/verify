@@ -9,8 +9,8 @@ html {
   --light-gray: #ccc;
   --shadow: #e6e6e6;
   --success: rgb(90, 206, 132);
-  --primary: #FF585D;
-  --secondary: #0072CE;
+  --primary: turquoise;
+  --secondary: MediumAquaMarine;
 
   background-color: var(--bg);
   color: var(--fg);
@@ -30,7 +30,6 @@ main {
 }
 
 h1 {
-  background-image: url(/logo-black.eab7a939.svg);
   background-position: center 1em;
   background-repeat: no-repeat;
   background-size: auto 1.5em;
@@ -180,7 +179,6 @@ aside footer *:last-child {
     --light-gray: #444;
   }
   h1 {
-    background-image: url(/logo-white.7fec831f.svg);
   }
   input:focus {
     box-shadow: 0 0 10em rgba(255, 255, 255, 0.02) inset;
