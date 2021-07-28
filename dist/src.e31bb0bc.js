@@ -46649,7 +46649,7 @@ async function initContract() {
 
   window.contract = await new _nearApiJs.Contract(window.walletConnection.account(), nearConfig.contractName, {
     // View methods are read only. They don't modify the state, but usually return some value.
-    viewMethods: ['getGreeting'],
+    viewMethods: ['getGreeting', 'findCertificate'],
     // Change methods can modify the state. But you don't receive the returned value when called.
     changeMethods: ['setGreeting', 'deleteCertificate']
   });
@@ -62712,9 +62712,13 @@ function App() {
   const [certSearchButtonDisabled, setCertSearchButtonDisabled] = _react.default.useState(true); // after submitting the form, we want to show Notification
 
 
-  const [showNotification, setShowNotification] = _react.default.useState(false); // The useEffect hook can be used to fire side-effects during render
-  // Learn more: https://reactjs.org/docs/hooks-intro.html
+  const [showNotification, setShowNotification] = _react.default.useState(false);
 
+  const [recordRecipient, setRecordRecipient] = _react.default.useState("");
+
+  var recordVerifier = "";
+  var recordDate = ""; // The useEffect hook can be used to fire side-effects during render
+  // Learn more: https://reactjs.org/docs/hooks-intro.html
 
   _react.default.useEffect(() => {
     // in this case, we only care to query the contract when signed in
@@ -62733,7 +62737,33 @@ function App() {
 
 
   if (!window.walletConnection.isSignedIn()) {
-    return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(MyAppBar, null), /*#__PURE__*/_react.default.createElement("main", null, /*#__PURE__*/_react.default.createElement("h1", null, "Verify"), /*#__PURE__*/_react.default.createElement("p", null, " Search for a user to check their vaccination status "), /*#__PURE__*/_react.default.createElement("form", null, /*#__PURE__*/_react.default.createElement("div", {
+    return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(MyAppBar, null), /*#__PURE__*/_react.default.createElement("main", null, /*#__PURE__*/_react.default.createElement("h1", null, "Verify"), /*#__PURE__*/_react.default.createElement("p", null, " Search for a user to check their vaccination status "), /*#__PURE__*/_react.default.createElement("form", {
+      onSubmit: async event => {
+        event.preventDefault(); // get input from search bar using id
+
+        const searchForMe = recipientSearchInput.value;
+        console.log(searchForMe); // call method on blockchain to get data
+
+        try {
+          await window.contract.findCertificate({
+            recipient: searchForMe
+          }).then(certificateInfo => {
+            if (certificateInfo !== null) {
+              // update ui to show
+              setRecordRecipient(searchForMe);
+              recordVerifier = certificateInfo.verifier;
+              recordDate = certificateInfo.date;
+              console.log(`${recordVerifier} ${recordDate}`);
+            } else {
+              alert(`No records found for ${searchForMe}`);
+            }
+          });
+        } catch (e) {
+          alert('Something went wrong! ' + 'Check your browser console for more info.');
+          throw e;
+        }
+      }
+    }, /*#__PURE__*/_react.default.createElement("div", {
       style: {
         display: 'flex'
       }
@@ -62741,6 +62771,7 @@ function App() {
       style: {
         flex: 1
       },
+      id: "recipientSearchInput",
       onChange: e => setCertSearchButtonDisabled(e.target.value === "")
       /* disable if empty input */
 
@@ -62919,7 +62950,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49801" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50360" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

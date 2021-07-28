@@ -64,3 +64,13 @@ export function deleteCertificate(recipient: string): void {
     logging.log(recipient + ' still there? ' + `${certificates.contains(recipient)}`)
   }
 }
+
+// find record for a certificate recipient
+export function findCertificate(recipient: string): CertificateInfo | null {
+  logging.log("trying to find cert");
+  if (certificates.contains(recipient)) {
+    logging.log( `getting cert for ${recipient}, verified by: ${certificates.getSome(recipient).verifier}`)
+    return certificates.getSome(recipient);
+  }
+  return null
+}

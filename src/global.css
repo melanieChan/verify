@@ -10,7 +10,7 @@ html {
   --shadow: #e6e6e6;
   --success: rgb(90, 206, 132);
   --primary: turquoise;
-  --secondary: MediumAquaMarine;
+  --secondary: teal;
 
   background-color: var(--bg);
   color: var(--fg);
@@ -182,5 +182,9 @@ aside footer *:last-child {
   }
   input:focus {
     box-shadow: 0 0 10em rgba(255, 255, 255, 0.02) inset;
+  }
+  /* highlight color shown when user highlights text */
+  ::selection {
+    background: var(--secondary);
   }
 }

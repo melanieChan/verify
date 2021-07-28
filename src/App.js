@@ -46,6 +46,10 @@ export default function App() {
   // after submitting the form, we want to show Notification
   const [showNotification, setShowNotification] = React.useState(false)
 
+  const [recordRecipient, setRecordRecipient] = React.useState("")
+  var recordVerifier = ""
+  var recordDate = ""
+
   // The useEffect hook can be used to fire side-effects during render
   // Learn more: https://reactjs.org/docs/hooks-intro.html
   React.useEffect(
@@ -77,10 +81,39 @@ export default function App() {
         <p> Search for a user to check their vaccination status </p>
 
         {/* Searching for verified accounts */}
-        <form>
+        <form onSubmit={async event => {
+          event.preventDefault()
+
+          // get input from search bar using id
+          const searchForMe = recipientSearchInput.value
+          console.log(searchForMe);
+
+          // call method on blockchain to get data
+          try {
+            await window.contract.findCertificate({
+              recipient: searchForMe
+            }).then(certificateInfo => {
+              if (certificateInfo !== null) {
+                // update ui to show
+                setRecordRecipient(searchForMe);
+                recordVerifier = certificateInfo.verifier;
+                recordDate = certificateInfo.date;
+                console.log(`${recordVerifier} ${recordDate}`);
+              } else {
+                alert(`No records found for ${searchForMe}`);
+              }
+            });
+          } catch (e) {
+            alert(
+              'Something went wrong! ' + 'Check your browser console for more info.'
+            )
+            throw e
+          }
+        }}>
           <div style={{ display: 'flex' }}>
             {/* Search field */}
             <input style={{ flex: 1 }}
+                id="recipientSearchInput"
                 onChange={e => setCertSearchButtonDisabled(e.target.value === "") /* disable if empty input */}
                 />
 
