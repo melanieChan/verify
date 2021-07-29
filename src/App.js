@@ -71,8 +71,23 @@ export default function App() {
     []
   )
 
+  // transaction hash needed for transaction link to Near explorer
+  const [hash, setHash] = React.useState("")
+  const [result, setResult] = React.useState(null)
+
   // if not signed in, return early with sign-in prompt
   if (!window.walletConnection.isSignedIn()) {
+
+    // get hash
+    React.useEffect(() => {
+        if (result !== null && result !== undefined) {
+          // setHash(result.transaction.hash)
+          console.log("hash: "+hash);
+        }
+        console.log("res: " + result);
+      }, [result]
+    )
+
     return (
       <>
       <MyAppBar/>
@@ -90,7 +105,7 @@ export default function App() {
 
           // call method on blockchain to get data
           try {
-            await window.contract.findCertificate({
+            setResult( await window.contract.findCertificate({
               recipient: searchForMe
             }).then(certificateInfo => {
               if (certificateInfo !== null) {
@@ -102,7 +117,8 @@ export default function App() {
               } else {
                 alert(`No records found for ${searchForMe}`);
               }
-            });
+            }));
+
           } catch (e) {
             alert(
               'Something went wrong! ' + 'Check your browser console for more info.'
@@ -130,7 +146,12 @@ export default function App() {
         { /* display certificate search result */
           recordRecipient != "" ?
           <div>
-            <p>{recordRecipient} was vaccined <br/> on {recordDate} <br/> Verified by {recordVerifier}</p>
+            <p>{recordRecipient} was vaccinated <br/> on {recordDate} <br/> Verified by {recordVerifier}</p>
+            <Button variant="outlined" style={{ color: 'turquoise', borderColor: "darkturquoise"}} onClick={(e) => {
+                e.preventDefault();
+                window.open('https://explorer.testnet.near.org/transactions/', '_blank');
+                }}>
+                See Transaction</Button>
           </div>
           :
           <></>
@@ -171,7 +192,7 @@ export default function App() {
             // make an update call to the smart contract
             await window.contract.setGreeting({
               // pass the value that the user entered in the greeting field
-              message: newGreeting
+              recipient: newGreeting
             })
           } catch (e) {
             alert(
@@ -231,8 +252,9 @@ export default function App() {
 
         {/*  details of certificate sent */}
         <div>
-          <p>Vaccination certificate sent to: {greeting}</p>
-
+          <p>Vaccination certificate sent to: </p>
+          <div style={{ backgroundColor: 'rgb(255, 255, 255, 0.05)', padding: '20px' }}>
+            <p>{greeting}</p>
           {/*  delete button */}
           <button onClick={ async event => {
             event.preventDefault()
@@ -243,9 +265,11 @@ export default function App() {
             } catch (e) {
               alert(e)
           }
-        }}> delete </button>
+        }}> revoke </button>
         </div>
 
+        </div>
+        {/*
         <p>
           Look at that! A Hello World app! This greeting is stored on the NEAR blockchain. Check it out:
         </p>
@@ -262,6 +286,7 @@ export default function App() {
         <p>
           To keep learning, check out <a target="_blank" rel="noreferrer" href="https://docs.near.org">the NEAR docs</a> or look through some <a target="_blank" rel="noreferrer" href="https://examples.near.org">example apps</a>.
         </p>
+        */}
       </main>
       {showNotification && <Notification />}
     </>

@@ -46649,7 +46649,7 @@ async function initContract() {
 
   window.contract = await new _nearApiJs.Contract(window.walletConnection.account(), nearConfig.contractName, {
     // View methods are read only. They don't modify the state, but usually return some value.
-    viewMethods: ['getGreeting', 'findCertificate'],
+    viewMethods: ['getGreeting', 'findCertificate', 'getCertificates'],
     // Change methods can modify the state. But you don't receive the returned value when called.
     changeMethods: ['setGreeting', 'deleteCertificate']
   });
@@ -62735,10 +62735,25 @@ function App() {
   }, // The second argument to useEffect tells React when to re-run the effect
   // Use an empty array to specify "only run on first render"
   // This works because signing into NEAR Wallet reloads the page
-  []); // if not signed in, return early with sign-in prompt
+  []); // transaction hash needed for transaction link to Near explorer
+
+
+  const [hash, setHash] = _react.default.useState("");
+
+  const [result, setResult] = _react.default.useState(null); // if not signed in, return early with sign-in prompt
 
 
   if (!window.walletConnection.isSignedIn()) {
+    // get hash
+    _react.default.useEffect(() => {
+      if (result !== null && result !== undefined) {
+        // setHash(result.transaction.hash)
+        console.log("hash: " + hash);
+      }
+
+      console.log("res: " + result);
+    }, [result]);
+
     return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(MyAppBar, null), /*#__PURE__*/_react.default.createElement("main", null, /*#__PURE__*/_react.default.createElement("h1", null, "Verify"), /*#__PURE__*/_react.default.createElement("p", null, " Search for a user to check their vaccination status "), /*#__PURE__*/_react.default.createElement("form", {
       onSubmit: async event => {
         event.preventDefault(); // get input from search bar using id
@@ -62747,7 +62762,7 @@ function App() {
         console.log(searchForMe); // call method on blockchain to get data
 
         try {
-          await window.contract.findCertificate({
+          setResult(await window.contract.findCertificate({
             recipient: searchForMe
           }).then(certificateInfo => {
             if (certificateInfo !== null) {
@@ -62759,7 +62774,7 @@ function App() {
             } else {
               alert(`No records found for ${searchForMe}`);
             }
-          });
+          }));
         } catch (e) {
           alert('Something went wrong! ' + 'Check your browser console for more info.');
           throw e;
@@ -62791,7 +62806,17 @@ function App() {
       }
     }, "Search"))),
     /* display certificate search result */
-    recordRecipient != "" ? /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("p", null, recordRecipient, " was vaccined ", /*#__PURE__*/_react.default.createElement("br", null), " on ", recordDate, " ", /*#__PURE__*/_react.default.createElement("br", null), " Verified by ", recordVerifier)) : /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null)));
+    recordRecipient != "" ? /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("p", null, recordRecipient, " was vaccinated ", /*#__PURE__*/_react.default.createElement("br", null), " on ", recordDate, " ", /*#__PURE__*/_react.default.createElement("br", null), " Verified by ", recordVerifier), /*#__PURE__*/_react.default.createElement(_Button.default, {
+      variant: "outlined",
+      style: {
+        color: 'turquoise',
+        borderColor: "darkturquoise"
+      },
+      onClick: e => {
+        e.preventDefault();
+        window.open('https://explorer.testnet.near.org/transactions/', '_blank');
+      }
+    }, "See Transaction")) : /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null)));
   }
 
   return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(MyAppBar, null), /*#__PURE__*/_react.default.createElement("main", null, /*#__PURE__*/_react.default.createElement("h1", null, /*#__PURE__*/_react.default.createElement("label", {
@@ -62817,7 +62842,7 @@ function App() {
         // make an update call to the smart contract
         await window.contract.setGreeting({
           // pass the value that the user entered in the greeting field
-          message: newGreeting
+          recipient: newGreeting
         });
       } catch (e) {
         alert('Something went wrong! ' + 'Maybe you need to sign out and back in? ' + 'Check your browser console for more info.');
@@ -62868,7 +62893,12 @@ function App() {
       padding: "18px 36px",
       fontSize: "18px"
     }
-  }, "Send")))), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("p", null, "Vaccination certificate sent to: ", greeting), /*#__PURE__*/_react.default.createElement("button", {
+  }, "Send")))), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("p", null, "Vaccination certificate sent to: "), /*#__PURE__*/_react.default.createElement("div", {
+    style: {
+      backgroundColor: 'rgb(255, 255, 255, 0.05)',
+      padding: '20px'
+    }
+  }, /*#__PURE__*/_react.default.createElement("p", null, greeting), /*#__PURE__*/_react.default.createElement("button", {
     onClick: async event => {
       event.preventDefault();
 
@@ -62880,19 +62910,7 @@ function App() {
         alert(e);
       }
     }
-  }, " delete ")), /*#__PURE__*/_react.default.createElement("p", null, "Look at that! A Hello World app! This greeting is stored on the NEAR blockchain. Check it out:"), /*#__PURE__*/_react.default.createElement("ol", null, /*#__PURE__*/_react.default.createElement("li", null, "Look in ", /*#__PURE__*/_react.default.createElement("code", null, "src/App.js"), " and ", /*#__PURE__*/_react.default.createElement("code", null, "src/utils.js"), " \u2013 you'll see ", /*#__PURE__*/_react.default.createElement("code", null, "getGreeting"), " and ", /*#__PURE__*/_react.default.createElement("code", null, "setGreeting"), " being called on ", /*#__PURE__*/_react.default.createElement("code", null, "contract"), ". What's this?"), /*#__PURE__*/_react.default.createElement("li", null, "Ultimately, this ", /*#__PURE__*/_react.default.createElement("code", null, "contract"), " code is defined in ", /*#__PURE__*/_react.default.createElement("code", null, "assembly/main.ts"), " \u2013 this is the source code for your ", /*#__PURE__*/_react.default.createElement("a", {
-    target: "_blank",
-    rel: "noreferrer",
-    href: "https://docs.near.org/docs/develop/contracts/overview"
-  }, "smart contract"), "."), /*#__PURE__*/_react.default.createElement("li", null, "When you run ", /*#__PURE__*/_react.default.createElement("code", null, "yarn dev"), ", the code in ", /*#__PURE__*/_react.default.createElement("code", null, "assembly/main.ts"), " gets deployed to the NEAR testnet. You can see how this happens by looking in ", /*#__PURE__*/_react.default.createElement("code", null, "package.json"), " at the ", /*#__PURE__*/_react.default.createElement("code", null, "scripts"), " section to find the ", /*#__PURE__*/_react.default.createElement("code", null, "dev"), " command.")), /*#__PURE__*/_react.default.createElement("hr", null), /*#__PURE__*/_react.default.createElement("p", null, "To keep learning, check out ", /*#__PURE__*/_react.default.createElement("a", {
-    target: "_blank",
-    rel: "noreferrer",
-    href: "https://docs.near.org"
-  }, "the NEAR docs"), " or look through some ", /*#__PURE__*/_react.default.createElement("a", {
-    target: "_blank",
-    rel: "noreferrer",
-    href: "https://examples.near.org"
-  }, "example apps"), ".")), showNotification && /*#__PURE__*/_react.default.createElement(Notification, null));
+  }, " revoke ")))), showNotification && /*#__PURE__*/_react.default.createElement(Notification, null));
 } // this component gets rendered by App after the form is submitted
 
 
@@ -62954,7 +62972,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50360" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64133" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

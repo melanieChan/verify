@@ -19,7 +19,7 @@ const DEFAULT_MESSAGE = 'Hello'
 // represents a certificate
 @nearBindgen
 class CertificateInfo {
-  verifier: string;
+  verifier: string; // certificate sender
   date: string;
 }
 
@@ -36,24 +36,23 @@ export function getGreeting(accountId: string): string | null {
   return storage.get<string>(accountId, DEFAULT_MESSAGE)
 }
 
-export function setGreeting(message: string): void {
-  const account_id = Context.sender
+export function setGreeting(recipient: string): void {
+  const sender = Context.sender
 
   // Use logging.log to record logs permanently to the blockchain!
   logging.log(
     // String interpolation (`like ${this}`) is a work in progress:
     // https://github.com/AssemblyScript/assemblyscript/pull/1115
-    'Saving greeting "' + message + '" for account "' + account_id + '"'
+    'Saving greeting "' + recipient + '" for account "' + sender + '"'
   )
 
   // add cert to map
-  certificates.set(message, {
-    verifier: account_id,
+  certificates.set(recipient, {
+    verifier: sender,
     date: "today",
   })
-  logging.log('cert added by: ' + `${certificates.getSome(message).verifier}`)
 
-  storage.set(account_id, message)
+  storage.set(sender, recipient)
 }
 
 // deletes a specific cert from map
