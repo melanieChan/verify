@@ -62843,7 +62843,12 @@ function App() {
         await window.contract.setGreeting({
           // pass the value that the user entered in the greeting field
           recipient: newGreeting
-        });
+        }); // await window.contract.getCertificates().then(recipients => {
+        //   console.log("got recipients");
+        //   for (let i = 0; i < recipients.length; ++i) {
+        //     console.log(recipients[i]);
+        //   }
+        // });
       } catch (e) {
         alert('Something went wrong! ' + 'Maybe you need to sign out and back in? ' + 'Check your browser console for more info.');
         throw e;
@@ -62972,7 +62977,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64133" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65470" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

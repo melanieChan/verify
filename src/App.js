@@ -194,6 +194,14 @@ export default function App() {
               // pass the value that the user entered in the greeting field
               recipient: newGreeting
             })
+
+            // await window.contract.getCertificates().then(recipients => {
+            //   console.log("got recipients");
+            //   for (let i = 0; i < recipients.length; ++i) {
+            //     console.log(recipients[i]);
+            //   }
+            // });
+
           } catch (e) {
             alert(
               'Something went wrong! ' +
