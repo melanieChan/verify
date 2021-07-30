@@ -64,6 +64,9 @@ function CertificateSearchPage() {
   // transaction hash needed for transaction link to Near explorer
   const [hash, setHash] = React.useState("")
 
+  // whether or not cert searched up has been revoked
+  const [revoked, setRevoked] = React.useState(false)
+
     return (
       <div>
       <h1>Welcome to Verify</h1>
@@ -88,6 +91,9 @@ function CertificateSearchPage() {
               setRecordVerifier(certificateInfo.verifier);
               setRecordDate(certificateInfo.date);
               console.log(`${recordVerifier} ${recordDate}`);
+
+              // in case previous search result was revoked, reset
+              setRevoked(false)
             } else {
               alert(`No records found for ${searchForMe}`);
             }
@@ -118,8 +124,8 @@ function CertificateSearchPage() {
           </div>
       </form>
       { /* display certificate search result */
-        recordRecipient != "" ?
-        <div style={{padding: '20px'}}>
+        recordRecipient != "" && !revoked ?
+        <div style={{padding: '30px', marginTop: '20px', backgroundColor: '#282828', borderRadius: '30px'}}>
           <p><strong>{recordRecipient}</strong> was vaccinated </p>
           <p>on <strong>{recordDate}</strong></p>
           <p>Verified by <strong>{recordVerifier}</strong></p>
@@ -127,6 +133,28 @@ function CertificateSearchPage() {
               e.preventDefault();
               window.open(`https://explorer.testnet.near.org/accounts/${recordVerifier}`, '_blank');
               }}> See Transaction</Button>
+
+            {/*  revoke button visible if current user was the certificate sender */
+              window.walletConnection.isSignedIn() && window.accountId === recordVerifier ?
+            <div style={{marginTop: '20px'}}>
+              <button onClick={ async event => {
+                event.preventDefault()
+                try {
+                  // delete from backend
+                  await window.contract.deleteCertificate({
+                    recipient: recordRecipient
+                  })
+                  alert(`revoked ${recordRecipient}`)
+
+                  // delete from frontend
+                  setRevoked(true)
+                } catch (e) {
+                  alert(e)
+              }
+            }}> revoke </button>
+          </div>
+          : <></>
+        }
         </div>
         :
         <></>
@@ -174,6 +202,7 @@ export default function App() {
             await window.contract.deleteCertificate({
               recipient: props.recipient
             })
+            alert(`revoked ${props.recipient}`)
           } catch (e) {
             alert(e)
         }

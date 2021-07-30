@@ -62737,7 +62737,10 @@ function CertificateSearchPage() {
   const [certSearchButtonDisabled, setCertSearchButtonDisabled] = _react.default.useState(true); // transaction hash needed for transaction link to Near explorer
 
 
-  const [hash, setHash] = _react.default.useState("");
+  const [hash, setHash] = _react.default.useState(""); // whether or not cert searched up has been revoked
+
+
+  const [revoked, setRevoked] = _react.default.useState(false);
 
   return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("h1", null, "Welcome to Verify"), /*#__PURE__*/_react.default.createElement("p", null, " Search for a user to check their vaccination status "), /*#__PURE__*/_react.default.createElement("form", {
     onSubmit: async event => {
@@ -62755,7 +62758,9 @@ function CertificateSearchPage() {
             setRecordRecipient(searchForMe);
             setRecordVerifier(certificateInfo.verifier);
             setRecordDate(certificateInfo.date);
-            console.log(`${recordVerifier} ${recordDate}`);
+            console.log(`${recordVerifier} ${recordDate}`); // in case previous search result was revoked, reset
+
+            setRevoked(false);
           } else {
             alert(`No records found for ${searchForMe}`);
           }
@@ -62791,9 +62796,12 @@ function CertificateSearchPage() {
     }
   }, "Search"))),
   /* display certificate search result */
-  recordRecipient != "" ? /*#__PURE__*/_react.default.createElement("div", {
+  recordRecipient != "" && !revoked ? /*#__PURE__*/_react.default.createElement("div", {
     style: {
-      padding: '20px'
+      padding: '30px',
+      marginTop: '20px',
+      backgroundColor: '#282828',
+      borderRadius: '30px'
     }
   }, /*#__PURE__*/_react.default.createElement("p", null, /*#__PURE__*/_react.default.createElement("strong", null, recordRecipient), " was vaccinated "), /*#__PURE__*/_react.default.createElement("p", null, "on ", /*#__PURE__*/_react.default.createElement("strong", null, recordDate)), /*#__PURE__*/_react.default.createElement("p", null, "Verified by ", /*#__PURE__*/_react.default.createElement("strong", null, recordVerifier)), /*#__PURE__*/_react.default.createElement(_Button.default, {
     variant: "outlined",
@@ -62805,7 +62813,29 @@ function CertificateSearchPage() {
       e.preventDefault();
       window.open(`https://explorer.testnet.near.org/accounts/${recordVerifier}`, '_blank');
     }
-  }, " See Transaction")) : /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null));
+  }, " See Transaction"),
+  /*  revoke button visible if current user was the certificate sender */
+  window.walletConnection.isSignedIn() && window.accountId === recordVerifier ? /*#__PURE__*/_react.default.createElement("div", {
+    style: {
+      marginTop: '20px'
+    }
+  }, /*#__PURE__*/_react.default.createElement("button", {
+    onClick: async event => {
+      event.preventDefault();
+
+      try {
+        // delete from backend
+        await window.contract.deleteCertificate({
+          recipient: recordRecipient
+        });
+        alert(`revoked ${recordRecipient}`); // delete from frontend
+
+        setRevoked(true);
+      } catch (e) {
+        alert(e);
+      }
+    }
+  }, " revoke ")) : /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null)) : /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null));
 }
 
 function App() {
@@ -62843,6 +62873,7 @@ function App() {
           await window.contract.deleteCertificate({
             recipient: props.recipient
           });
+          alert(`revoked ${props.recipient}`);
         } catch (e) {
           alert(e);
         } // delete from frontend: make new array by copying over all values except value to be deleted
