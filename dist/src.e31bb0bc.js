@@ -62673,137 +62673,152 @@ const {
   networkId
 } = (0, _config.default)("development" || 'development'); // material UI AppBar with custom styling
 
-class MyAppBar extends _react.default.Component {
-  render() {
-    return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(_AppBar.default, {
-      position: "static",
-      style: {
-        backgroundColor: "transparent",
-        boxShadow: "none"
-      }
-    }, /*#__PURE__*/_react.default.createElement(_Toolbar.default, null, /*#__PURE__*/_react.default.createElement(_Typography.default, {
-      variant: "h6",
-      style: {
-        flex: 1
-      }
-    }, "Vaccine Verify"),
-    /* button to sign in or sign out */
-    window.walletConnection.isSignedIn() ? /*#__PURE__*/_react.default.createElement(_Button.default, {
-      style: {
-        color: 'turquoise'
-      },
-      onClick: _utils.logout
-    }, "Logout") : /*#__PURE__*/_react.default.createElement(_Button.default, {
-      style: {
-        color: 'turquoise'
-      },
-      onClick: _utils.login
-    }, "Health Center Login"))));
-  }
+function MyAppBar() {
+  const [atHome, setAtHome] = _react.default.useState(true); // whether or not on home page
 
+
+  return /*#__PURE__*/_react.default.createElement("div", {
+    style: {
+      height: `auto`
+    }
+  }, /*#__PURE__*/_react.default.createElement(_AppBar.default, {
+    position: "static",
+    style: {
+      backgroundColor: "transparent",
+      boxShadow: "none"
+    }
+  }, /*#__PURE__*/_react.default.createElement(_Toolbar.default, null, /*#__PURE__*/_react.default.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/_react.default.createElement(_Button.default, {
+    style: {
+      color: 'white'
+    },
+    onClick: e => {
+      e.preventDefault(); // toggle state
+
+      if (atHome) setAtHome(false);else setAtHome(true);
+    }
+  }, "Vaccine Verify")),
+  /* button to sign in or sign out */
+  window.walletConnection.isSignedIn() ? /*#__PURE__*/_react.default.createElement(_Button.default, {
+    style: {
+      color: 'turquoise'
+    },
+    onClick: _utils.logout
+  }, "Logout") : /*#__PURE__*/_react.default.createElement(_Button.default, {
+    style: {
+      color: 'turquoise'
+    },
+    onClick: _utils.login
+  }, "Health Center Login"))),
+  /* If signed in user wants to see Certificate search page */
+  window.walletConnection.isSignedIn() && !atHome ? /*#__PURE__*/_react.default.createElement("main", {
+    style: {
+      height: '60vh',
+      marginBottom: '40vh',
+      justifyContent: 'center',
+      alignItems: 'center',
+      display: 'flex'
+    }
+  }, /*#__PURE__*/_react.default.createElement(CertificateSearchPage, null)) : /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null));
+} // to search if someone has been verified
+
+
+function CertificateSearchPage() {
+  // search result content to display
+  const [recordRecipient, setRecordRecipient] = _react.default.useState("");
+
+  const [recordVerifier, setRecordVerifier] = _react.default.useState("");
+
+  const [recordDate, setRecordDate] = _react.default.useState("");
+
+  const [certSearchButtonDisabled, setCertSearchButtonDisabled] = _react.default.useState(true); // transaction hash needed for transaction link to Near explorer
+
+
+  const [hash, setHash] = _react.default.useState("");
+
+  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("h1", null, "Welcome to Verify"), /*#__PURE__*/_react.default.createElement("p", null, " Search for a user to check their vaccination status "), /*#__PURE__*/_react.default.createElement("form", {
+    onSubmit: async event => {
+      event.preventDefault(); // get input from search bar using id
+
+      const searchForMe = recipientSearchInput.value;
+      console.log(searchForMe); // call method on blockchain to get data
+
+      try {
+        await window.contract.findCertificate({
+          recipient: searchForMe
+        }).then(certificateInfo => {
+          if (certificateInfo !== null) {
+            // update ui to show
+            setRecordRecipient(searchForMe);
+            setRecordVerifier(certificateInfo.verifier);
+            setRecordDate(certificateInfo.date);
+            console.log(`${recordVerifier} ${recordDate}`);
+          } else {
+            alert(`No records found for ${searchForMe}`);
+          }
+        });
+      } catch (e) {
+        alert('Something went wrong! ' + 'Check your browser console for more info.');
+        throw e;
+      }
+    }
+  }, /*#__PURE__*/_react.default.createElement("div", {
+    style: {
+      display: 'flex'
+    }
+  }, /*#__PURE__*/_react.default.createElement("input", {
+    style: {
+      flex: 1
+    },
+    id: "recipientSearchInput",
+    onChange: e => setCertSearchButtonDisabled(e.target.value === "")
+    /* disable if empty input */
+
+  }), /*#__PURE__*/_react.default.createElement(_Button.default, {
+    variant: "outlined",
+    disabled: certSearchButtonDisabled,
+    type: "submit",
+    style: {
+      borderBottomRightRadius: 35,
+      borderTopRightRadius: 35,
+      borderColor: "darkturquoise",
+      color: "darkturquoise",
+      padding: "18px 36px",
+      fontSize: "18px"
+    }
+  }, "Search"))),
+  /* display certificate search result */
+  recordRecipient != "" ? /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("p", null, recordRecipient, " was vaccinated ", /*#__PURE__*/_react.default.createElement("br", null), " on ", recordDate, " ", /*#__PURE__*/_react.default.createElement("br", null), " Verified by ", recordVerifier), /*#__PURE__*/_react.default.createElement(_Button.default, {
+    variant: "outlined",
+    style: {
+      color: 'turquoise',
+      borderColor: "darkturquoise"
+    },
+    onClick: e => {
+      e.preventDefault();
+      window.open('https://explorer.testnet.near.org/transactions/', '_blank');
+    }
+  }, " See Transaction")) : /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null));
 }
 
 function App() {
   const [greeting, setGreeting] = _react.default.useState(); // when the user has not yet interacted with the form, disable the button
 
 
-  const [buttonDisabled, setButtonDisabled] = _react.default.useState(true);
-
-  const [certSearchButtonDisabled, setCertSearchButtonDisabled] = _react.default.useState(true); // after submitting the form, we want to show Notification
+  const [buttonDisabled, setButtonDisabled] = _react.default.useState(true); // after submitting the form, we want to show Notification
 
 
-  const [showNotification, setShowNotification] = _react.default.useState(false); // search result content to display
+  const [showNotification, setShowNotification] = _react.default.useState(false); // list of recent recipients
 
 
-  const [recordRecipient, setRecordRecipient] = _react.default.useState("");
-
-  const [recordVerifier, setRecordVerifier] = _react.default.useState("");
-
-  const [recordDate, setRecordDate] = _react.default.useState(""); // list of recent recipients
-
-
-  const [recentRecipients, setRecentRecipients] = _react.default.useState([]); // transaction hash needed for transaction link to Near explorer
-
-
-  const [hash, setHash] = _react.default.useState("");
-
-  const [result, setResult] = _react.default.useState(null); // if not signed in, return early with sign-in prompt
+  const [recentRecipients, setRecentRecipients] = _react.default.useState([]); // if not signed in, return early with sign-in prompt
 
 
   if (!window.walletConnection.isSignedIn()) {
-    // get hash
-    _react.default.useEffect(() => {
-      if (result !== null && result !== undefined) {
-        // setHash(result.transaction.hash)
-        console.log("hash: " + hash);
-      }
-
-      console.log("res: " + result);
-    }, [result]);
-
-    return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(MyAppBar, null), /*#__PURE__*/_react.default.createElement("main", null, /*#__PURE__*/_react.default.createElement("h1", null, "Verify"), /*#__PURE__*/_react.default.createElement("p", null, " Search for a user to check their vaccination status "), /*#__PURE__*/_react.default.createElement("form", {
-      onSubmit: async event => {
-        event.preventDefault(); // get input from search bar using id
-
-        const searchForMe = recipientSearchInput.value;
-        console.log(searchForMe); // call method on blockchain to get data
-
-        try {
-          setResult(await window.contract.findCertificate({
-            recipient: searchForMe
-          }).then(certificateInfo => {
-            if (certificateInfo !== null) {
-              // update ui to show
-              setRecordRecipient(searchForMe);
-              setRecordVerifier(certificateInfo.verifier);
-              setRecordDate(certificateInfo.date);
-              console.log(`${recordVerifier} ${recordDate}`);
-            } else {
-              alert(`No records found for ${searchForMe}`);
-            }
-          }));
-        } catch (e) {
-          alert('Something went wrong! ' + 'Check your browser console for more info.');
-          throw e;
-        }
-      }
-    }, /*#__PURE__*/_react.default.createElement("div", {
-      style: {
-        display: 'flex'
-      }
-    }, /*#__PURE__*/_react.default.createElement("input", {
-      style: {
-        flex: 1
-      },
-      id: "recipientSearchInput",
-      onChange: e => setCertSearchButtonDisabled(e.target.value === "")
-      /* disable if empty input */
-
-    }), /*#__PURE__*/_react.default.createElement(_Button.default, {
-      variant: "outlined",
-      disabled: certSearchButtonDisabled,
-      type: "submit",
-      style: {
-        borderBottomRightRadius: 35,
-        borderTopRightRadius: 35,
-        borderColor: "darkturquoise",
-        color: "darkturquoise",
-        padding: "18px 36px",
-        fontSize: "18px"
-      }
-    }, "Search"))),
-    /* display certificate search result */
-    recordRecipient != "" ? /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("p", null, recordRecipient, " was vaccinated ", /*#__PURE__*/_react.default.createElement("br", null), " on ", recordDate, " ", /*#__PURE__*/_react.default.createElement("br", null), " Verified by ", recordVerifier), /*#__PURE__*/_react.default.createElement(_Button.default, {
-      variant: "outlined",
-      style: {
-        color: 'turquoise',
-        borderColor: "darkturquoise"
-      },
-      onClick: e => {
-        e.preventDefault();
-        window.open('https://explorer.testnet.near.org/transactions/', '_blank');
-      }
-    }, " See Transaction")) : /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null)));
+    return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(MyAppBar, null), /*#__PURE__*/_react.default.createElement("main", null, /*#__PURE__*/_react.default.createElement(CertificateSearchPage, null)));
   } // div of a single recent recipient
 
 
@@ -62857,12 +62872,7 @@ function App() {
         await window.contract.setGreeting({
           // pass the value that the user entered in the greeting field
           recipient: newGreeting
-        }); // await window.contract.getCertificates().then(recipients => {
-        //   console.log("got recipients");
-        //   for (let i = 0; i < recipients.length; ++i) {
-        //     console.log(recipients[i]);
-        //   }
-        // });
+        });
       } catch (e) {
         alert('Something went wrong! ' + 'Maybe you need to sign out and back in? ' + 'Check your browser console for more info.');
         throw e;
@@ -62891,7 +62901,7 @@ function App() {
       color: 'var(--gray)',
       marginBottom: '0.5em'
     }
-  }, "Send vaccination certificate to"), /*#__PURE__*/_react.default.createElement("div", {
+  }, " Send vaccination certificate to "), /*#__PURE__*/_react.default.createElement("div", {
     style: {
       display: 'flex'
     }

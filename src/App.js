@@ -13,25 +13,124 @@ import getConfig from './config'
 const { networkId } = getConfig(process.env.NODE_ENV || 'development')
 
 // material UI AppBar with custom styling
-class MyAppBar extends React.Component {
-  render() {
+function MyAppBar() {
+  const [atHome, setAtHome] = React.useState(true) // whether or not on home page
+
     return (
-      <>
+      <div style={{height: `auto`}}>
       <AppBar  position="static" style={{backgroundColor: "transparent", boxShadow: "none"}}>
         <Toolbar >
-            <Typography variant="h6" style={{ flex: 1 }}>
-              Vaccine Verify
-            </Typography>
+            {/* Home button */}
+            <div style={{ flex: 1 }} >
+              <Button style={{ color: 'white'}} onClick={(e) => {
+                  e.preventDefault();
+                  // toggle state
+                  if (atHome)
+                    setAtHome(false);
+                  else
+                    setAtHome(true);
+                  }}>Vaccine Verify</Button>
+            </div>
+
             { /* button to sign in or sign out */
               window.walletConnection.isSignedIn() ?
               <Button style={{ color: 'turquoise'}} onClick={logout} >Logout</Button>
-                : <Button style={{ color: 'turquoise'}} onClick={login} >Health Center Login</Button>
+                :
+                <Button style={{ color: 'turquoise'}} onClick={login} >Health Center Login</Button>
              }
           </Toolbar>
       </AppBar>
-      </>
+
+      { /* If signed in user wants to see Certificate search page */
+        window.walletConnection.isSignedIn() && !atHome ?
+        <main style={{height: '60vh', marginBottom: '40vh', justifyContent:'center', alignItems:'center', display: 'flex' }}>
+          <CertificateSearchPage/>
+        </main>
+        : <></>
+      }
+      </div>
     );
-  }
+}
+
+// to search if someone has been verified
+function CertificateSearchPage() {
+  // search result content to display
+  const [recordRecipient, setRecordRecipient] = React.useState("")
+  const [recordVerifier, setRecordVerifier] = React.useState("")
+  const [recordDate, setRecordDate] = React.useState("")
+
+  const [certSearchButtonDisabled, setCertSearchButtonDisabled] = React.useState(true)
+
+  // transaction hash needed for transaction link to Near explorer
+  const [hash, setHash] = React.useState("")
+
+    return (
+      <div>
+      <h1>Welcome to Verify</h1>
+      <p> Search for a user to check their vaccination status </p>
+
+      {/* Searching for verified accounts */}
+      <form onSubmit={async event => {
+        event.preventDefault()
+
+        // get input from search bar using id
+        const searchForMe = recipientSearchInput.value
+        console.log(searchForMe);
+
+        // call method on blockchain to get data
+        try {
+          await window.contract.findCertificate({
+            recipient: searchForMe
+          }).then(certificateInfo => {
+            if (certificateInfo !== null) {
+              // update ui to show
+              setRecordRecipient(searchForMe);
+              setRecordVerifier(certificateInfo.verifier);
+              setRecordDate(certificateInfo.date);
+              console.log(`${recordVerifier} ${recordDate}`);
+            } else {
+              alert(`No records found for ${searchForMe}`);
+            }
+          });
+
+        } catch (e) {
+          alert(
+            'Something went wrong! ' + 'Check your browser console for more info.'
+          )
+          throw e
+        }
+      }}>
+        <div style={{ display: 'flex' }}>
+          {/* Search field */}
+          <input style={{ flex: 1 }}
+              id="recipientSearchInput"
+              onChange={e => setCertSearchButtonDisabled(e.target.value === "") /* disable if empty input */}
+              />
+
+          {/* Search submit button */}
+          <Button variant="outlined" disabled={certSearchButtonDisabled} type="submit" style={{
+            borderBottomRightRadius: 35, borderTopRightRadius: 35, borderColor: "darkturquoise",
+            color: "darkturquoise",
+            padding: "18px 36px",
+            fontSize: "18px" }}>
+            Search
+            </Button>
+          </div>
+      </form>
+      { /* display certificate search result */
+        recordRecipient != "" ?
+        <div>
+          <p>{recordRecipient} was vaccinated <br/> on {recordDate} <br/> Verified by {recordVerifier}</p>
+          <Button variant="outlined" style={{ color: 'turquoise', borderColor: "darkturquoise"}} onClick={(e) => {
+              e.preventDefault();
+              window.open('https://explorer.testnet.near.org/transactions/', '_blank');
+              }}> See Transaction</Button>
+        </div>
+        :
+        <></>
+      }
+      </div>
+    );
 }
 
 
@@ -41,103 +140,19 @@ export default function App() {
   // when the user has not yet interacted with the form, disable the button
   const [buttonDisabled, setButtonDisabled] = React.useState(true)
 
-  const [certSearchButtonDisabled, setCertSearchButtonDisabled] = React.useState(true)
-
   // after submitting the form, we want to show Notification
   const [showNotification, setShowNotification] = React.useState(false)
-
-  // search result content to display
-  const [recordRecipient, setRecordRecipient] = React.useState("")
-  const [recordVerifier, setRecordVerifier] = React.useState("")
-  const [recordDate, setRecordDate] = React.useState("")
 
   // list of recent recipients
   const [recentRecipients, setRecentRecipients] = React.useState([])
 
-  // transaction hash needed for transaction link to Near explorer
-  const [hash, setHash] = React.useState("")
-  const [result, setResult] = React.useState(null)
-
   // if not signed in, return early with sign-in prompt
   if (!window.walletConnection.isSignedIn()) {
-
-    // get hash
-    React.useEffect(() => {
-        if (result !== null && result !== undefined) {
-          // setHash(result.transaction.hash)
-          console.log("hash: "+hash);
-        }
-        console.log("res: " + result);
-      }, [result]
-    )
-
     return (
       <>
       <MyAppBar/>
       <main>
-        <h1>Verify</h1>
-        <p> Search for a user to check their vaccination status </p>
-
-        {/* Searching for verified accounts */}
-        <form onSubmit={async event => {
-          event.preventDefault()
-
-          // get input from search bar using id
-          const searchForMe = recipientSearchInput.value
-          console.log(searchForMe);
-
-          // call method on blockchain to get data
-          try {
-            setResult( await window.contract.findCertificate({
-              recipient: searchForMe
-            }).then(certificateInfo => {
-              if (certificateInfo !== null) {
-                // update ui to show
-                setRecordRecipient(searchForMe);
-                setRecordVerifier(certificateInfo.verifier);
-                setRecordDate(certificateInfo.date);
-                console.log(`${recordVerifier} ${recordDate}`);
-              } else {
-                alert(`No records found for ${searchForMe}`);
-              }
-            }));
-
-          } catch (e) {
-            alert(
-              'Something went wrong! ' + 'Check your browser console for more info.'
-            )
-            throw e
-          }
-        }}>
-          <div style={{ display: 'flex' }}>
-            {/* Search field */}
-            <input style={{ flex: 1 }}
-                id="recipientSearchInput"
-                onChange={e => setCertSearchButtonDisabled(e.target.value === "") /* disable if empty input */}
-                />
-
-            {/* Search submit button */}
-            <Button variant="outlined" disabled={certSearchButtonDisabled} type="submit" style={{
-              borderBottomRightRadius: 35, borderTopRightRadius: 35, borderColor: "darkturquoise",
-              color: "darkturquoise",
-              padding: "18px 36px",
-              fontSize: "18px" }}>
-              Search
-              </Button>
-            </div>
-        </form>
-        { /* display certificate search result */
-          recordRecipient != "" ?
-          <div>
-            <p>{recordRecipient} was vaccinated <br/> on {recordDate} <br/> Verified by {recordVerifier}</p>
-            <Button variant="outlined" style={{ color: 'turquoise', borderColor: "darkturquoise"}} onClick={(e) => {
-                e.preventDefault();
-                window.open('https://explorer.testnet.near.org/transactions/', '_blank');
-                }}> See Transaction</Button>
-          </div>
-          :
-          <></>
-        }
+        <CertificateSearchPage/>
       </main>
       </>
     )
@@ -201,14 +216,6 @@ export default function App() {
               // pass the value that the user entered in the greeting field
               recipient: newGreeting
             })
-
-            // await window.contract.getCertificates().then(recipients => {
-            //   console.log("got recipients");
-            //   for (let i = 0; i < recipients.length; ++i) {
-            //     console.log(recipients[i]);
-            //   }
-            // });
-
           } catch (e) {
             alert(
               'Something went wrong! ' +
@@ -243,9 +250,7 @@ export default function App() {
                 color: 'var(--gray)',
                 marginBottom: '0.5em'
               }}
-            >
-              Send vaccination certificate to
-            </label>
+            > Send vaccination certificate to </label>
             <div style={{ display: 'flex' }}>
               <input
                 defaultValue={greeting}
@@ -278,24 +283,6 @@ export default function App() {
           )}
 
         </div>
-        {/*
-        <p>
-          Look at that! A Hello World app! This greeting is stored on the NEAR blockchain. Check it out:
-        </p>
-        <ol>
-          <li>
-            Look in <code>src/App.js</code> and <code>src/utils.js</code> – you'll see <code>getGreeting</code> and <code>setGreeting</code> being called on <code>contract</code>. What's this?
-          </li>
-          <li>
-            Ultimately, this <code>contract</code> code is defined in <code>assembly/main.ts</code> – this is the source code for your <a target="_blank" rel="noreferrer" href="https://docs.near.org/docs/develop/contracts/overview">smart contract</a>.</li>
-          <li>
-            When you run <code>yarn dev</code>, the code in <code>assembly/main.ts</code> gets deployed to the NEAR testnet. You can see how this happens by looking in <code>package.json</code> at the <code>scripts</code> section to find the <code>dev</code> command.</li>
-        </ol>
-        <hr />
-        <p>
-          To keep learning, check out <a target="_blank" rel="noreferrer" href="https://docs.near.org">the NEAR docs</a> or look through some <a target="_blank" rel="noreferrer" href="https://examples.near.org">example apps</a>.
-        </p>
-        */}
       </main>
       {showNotification && <Notification />}
     </>
