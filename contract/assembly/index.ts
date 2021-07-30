@@ -13,6 +13,7 @@
  */
 
 import { Context, logging, storage, PersistentMap, PersistentSet } from 'near-sdk-as'
+// import { Date } from ""
 
 const DEFAULT_MESSAGE = 'Hello'
 
@@ -48,7 +49,8 @@ export function setGreeting(recipient: string): void {
   // add cert to map
   certificates.set(recipient, {
     verifier: sender,
-    date: "today",
+    date: "7/30/21",
+    // date: Date.now.toString(),
   })
 
   // Add to recipient list
