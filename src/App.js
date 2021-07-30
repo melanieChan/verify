@@ -5,7 +5,6 @@ import './global.css'
 
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 
@@ -29,7 +28,7 @@ function MyAppBar() {
                     setAtHome(false);
                   else
                     setAtHome(true);
-                  }}>Vaccine Verify</Button>
+                  }}>Verify</Button>
             </div>
 
             { /* button to sign in or sign out */
@@ -64,9 +63,6 @@ function CertificateSearchPage() {
   // transaction hash needed for transaction link to Near explorer
   const [hash, setHash] = React.useState("")
 
-  // whether or not cert searched up has been revoked
-  const [revoked, setRevoked] = React.useState(false)
-
     return (
       <div>
       <h1>Welcome to Verify</h1>
@@ -91,9 +87,6 @@ function CertificateSearchPage() {
               setRecordVerifier(certificateInfo.verifier);
               setRecordDate(certificateInfo.date);
               console.log(`${recordVerifier} ${recordDate}`);
-
-              // in case previous search result was revoked, reset
-              setRevoked(false)
             } else {
               alert(`No records found for ${searchForMe}`);
             }
@@ -124,7 +117,7 @@ function CertificateSearchPage() {
           </div>
       </form>
       { /* display certificate search result */
-        recordRecipient != "" && !revoked ?
+        recordRecipient != ""  ?
         <div style={{padding: '30px', marginTop: '20px', backgroundColor: '#282828', borderRadius: '30px'}}>
           <p><strong>{recordRecipient}</strong> was vaccinated </p>
           <p>on <strong>{recordDate}</strong></p>
@@ -146,8 +139,8 @@ function CertificateSearchPage() {
                   })
                   alert(`revoked ${recordRecipient}`)
 
-                  // delete from frontend
-                  setRevoked(true)
+                  // delete from frontend: stop displaying certificate 
+                  setRecordRecipient("")
                 } catch (e) {
                   alert(e)
               }
