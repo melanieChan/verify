@@ -119,11 +119,13 @@ function CertificateSearchPage() {
       </form>
       { /* display certificate search result */
         recordRecipient != "" ?
-        <div>
-          <p>{recordRecipient} was vaccinated <br/> on {recordDate} <br/> Verified by {recordVerifier}</p>
+        <div style={{padding: '20px'}}>
+          <p><strong>{recordRecipient}</strong> was vaccinated </p>
+          <p>on <strong>{recordDate}</strong></p>
+          <p>Verified by <strong>{recordVerifier}</strong></p>
           <Button variant="outlined" style={{ color: 'turquoise', borderColor: "darkturquoise"}} onClick={(e) => {
               e.preventDefault();
-              window.open('https://explorer.testnet.near.org/transactions/', '_blank');
+              window.open(`https://explorer.testnet.near.org/accounts/${recordVerifier}`, '_blank');
               }}> See Transaction</Button>
         </div>
         :
@@ -161,7 +163,7 @@ export default function App() {
   // div of a single recent recipient
   function RecipientDetails(props) {
     return (
-      <div style={{ backgroundColor: 'rgb(255, 255, 255, 0.05)', padding: '20px' }}>
+      <div style={{ backgroundColor: 'rgb(255, 255, 255, 0.05)', padding: '20px', marginBottom: '20px', justifyContent: 'center' }}>
         <p>{props.recipient}</p>
 
         {/*  delete button */}

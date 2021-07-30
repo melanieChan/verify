@@ -72,18 +72,18 @@ export function setGreeting(recipient: string): void {
 
 // deletes a specific cert from map
 export function deleteCertificate(recipient: string): void {
-  logging.log("trying to delete");
+  // console.log("trying to delete");
   if (certificates.contains(recipient)) {
     certificates.delete(recipient);
-    logging.log(recipient + ' still there? ' + `${certificates.contains(recipient)}`)
+    // console.log(recipient + ' still there? ' + `${certificates.contains(recipient)}`)
   }
 }
 
 // find record for a certificate recipient
 export function findCertificate(recipient: string): CertificateInfo | null {
-  logging.log("trying to find cert");
+  // console.log("trying to find cert");
   if (certificates.contains(recipient)) {
-    logging.log( `getting cert for ${recipient}, verified by: ${certificates.getSome(recipient).verifier}`)
+    // console.log( `getting cert for ${recipient}, verified by: ${certificates.getSome(recipient).verifier}`)
     return certificates.getSome(recipient);
   }
   return null

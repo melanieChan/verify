@@ -115,6 +115,26 @@ fieldset {
   padding: 2em 0;
 }
 
+/* input field's style when autofill suggestion is selected */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  border: 1px solid teal;
+  -webkit-text-fill-color: var(--primary); /* text color */
+  transition: background-color 5000s ease-in-out 0s;
+}
+/* text highlight color */
+input:-webkit-autofill::selection, textarea:-webkit-autofill::selection, select:-webkit-autofill::selection {
+  background: var(--bg);
+
+}
+
 input {
   background-color: var(--shadow);
   border: none;

@@ -62791,7 +62791,11 @@ function CertificateSearchPage() {
     }
   }, "Search"))),
   /* display certificate search result */
-  recordRecipient != "" ? /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("p", null, recordRecipient, " was vaccinated ", /*#__PURE__*/_react.default.createElement("br", null), " on ", recordDate, " ", /*#__PURE__*/_react.default.createElement("br", null), " Verified by ", recordVerifier), /*#__PURE__*/_react.default.createElement(_Button.default, {
+  recordRecipient != "" ? /*#__PURE__*/_react.default.createElement("div", {
+    style: {
+      padding: '20px'
+    }
+  }, /*#__PURE__*/_react.default.createElement("p", null, /*#__PURE__*/_react.default.createElement("strong", null, recordRecipient), " was vaccinated "), /*#__PURE__*/_react.default.createElement("p", null, "on ", /*#__PURE__*/_react.default.createElement("strong", null, recordDate)), /*#__PURE__*/_react.default.createElement("p", null, "Verified by ", /*#__PURE__*/_react.default.createElement("strong", null, recordVerifier)), /*#__PURE__*/_react.default.createElement(_Button.default, {
     variant: "outlined",
     style: {
       color: 'turquoise',
@@ -62799,7 +62803,7 @@ function CertificateSearchPage() {
     },
     onClick: e => {
       e.preventDefault();
-      window.open('https://explorer.testnet.near.org/transactions/', '_blank');
+      window.open(`https://explorer.testnet.near.org/accounts/${recordVerifier}`, '_blank');
     }
   }, " See Transaction")) : /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null));
 }
@@ -62826,7 +62830,9 @@ function App() {
     return /*#__PURE__*/_react.default.createElement("div", {
       style: {
         backgroundColor: 'rgb(255, 255, 255, 0.05)',
-        padding: '20px'
+        padding: '20px',
+        marginBottom: '20px',
+        justifyContent: 'center'
       }
     }, /*#__PURE__*/_react.default.createElement("p", null, props.recipient), /*#__PURE__*/_react.default.createElement("button", {
       onClick: async event => {
