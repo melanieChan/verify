@@ -62712,30 +62712,17 @@ function App() {
   const [certSearchButtonDisabled, setCertSearchButtonDisabled] = _react.default.useState(true); // after submitting the form, we want to show Notification
 
 
-  const [showNotification, setShowNotification] = _react.default.useState(false);
+  const [showNotification, setShowNotification] = _react.default.useState(false); // search result content to display
+
 
   const [recordRecipient, setRecordRecipient] = _react.default.useState("");
 
   const [recordVerifier, setRecordVerifier] = _react.default.useState("");
 
-  const [recordDate, setRecordDate] = _react.default.useState(""); // The useEffect hook can be used to fire side-effects during render
-  // Learn more: https://reactjs.org/docs/hooks-intro.html
+  const [recordDate, setRecordDate] = _react.default.useState(""); // list of recent recipients
 
 
-  _react.default.useEffect(() => {
-    // in this case, we only care to query the contract when signed in
-    if (window.walletConnection.isSignedIn()) {
-      // load data from contract
-      window.contract.getGreeting({
-        accountId: window.accountId
-      }).then(greetingFromContract => {
-        setGreeting(greetingFromContract);
-      });
-    }
-  }, // The second argument to useEffect tells React when to re-run the effect
-  // Use an empty array to specify "only run on first render"
-  // This works because signing into NEAR Wallet reloads the page
-  []); // transaction hash needed for transaction link to Near explorer
+  const [recentRecipients, setRecentRecipients] = _react.default.useState([]); // transaction hash needed for transaction link to Near explorer
 
 
   const [hash, setHash] = _react.default.useState("");
@@ -62816,8 +62803,35 @@ function App() {
         e.preventDefault();
         window.open('https://explorer.testnet.near.org/transactions/', '_blank');
       }
-    }, "See Transaction")) : /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null)));
-  }
+    }, " See Transaction")) : /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null)));
+  } // div of a single recent recipient
+
+
+  function RecipientDetails(props) {
+    return /*#__PURE__*/_react.default.createElement("div", {
+      style: {
+        backgroundColor: 'rgb(255, 255, 255, 0.05)',
+        padding: '20px'
+      }
+    }, /*#__PURE__*/_react.default.createElement("p", null, props.recipient), /*#__PURE__*/_react.default.createElement("button", {
+      onClick: async event => {
+        event.preventDefault();
+
+        try {
+          // delete from backend
+          await window.contract.deleteCertificate({
+            recipient: props.recipient
+          });
+        } catch (e) {
+          alert(e);
+        } // delete from frontend: make new array by copying over all values except value to be deleted
+
+
+        setRecentRecipients(recentRecipients.filter(otherRecipient => otherRecipient != props.recipient));
+      }
+    }, " revoke "));
+  } // if signed in
+
 
   return /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(MyAppBar, null), /*#__PURE__*/_react.default.createElement("main", null, /*#__PURE__*/_react.default.createElement("h1", null, /*#__PURE__*/_react.default.createElement("label", {
     htmlFor: "greeting",
@@ -62858,7 +62872,9 @@ function App() {
       } // update local `greeting` variable to match persisted value
 
 
-      setGreeting(newGreeting);
+      setGreeting(newGreeting); // add to list to be displayed
+
+      recentRecipients.push(newGreeting);
       setShowNotification(true); // remove Notification again after css animation completes
       // this allows it to be shown again next time the form is submitted
 
@@ -62898,24 +62914,11 @@ function App() {
       padding: "18px 36px",
       fontSize: "18px"
     }
-  }, "Send")))), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("p", null, "Vaccination certificate sent to: "), /*#__PURE__*/_react.default.createElement("div", {
-    style: {
-      backgroundColor: 'rgb(255, 255, 255, 0.05)',
-      padding: '20px'
-    }
-  }, /*#__PURE__*/_react.default.createElement("p", null, greeting), /*#__PURE__*/_react.default.createElement("button", {
-    onClick: async event => {
-      event.preventDefault();
-
-      try {
-        await window.contract.deleteCertificate({
-          recipient: greeting
-        });
-      } catch (e) {
-        alert(e);
-      }
-    }
-  }, " revoke ")))), showNotification && /*#__PURE__*/_react.default.createElement(Notification, null));
+  }, "Send")))), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("p", null, "Vaccination certificate sent to: "),
+  /* temporary list of recent recipients */
+  recentRecipients.map(recipient => /*#__PURE__*/_react.default.createElement(RecipientDetails, {
+    recipient: recipient
+  })))), showNotification && /*#__PURE__*/_react.default.createElement(Notification, null));
 } // this component gets rendered by App after the form is submitted
 
 
@@ -62977,7 +62980,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "65470" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57416" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

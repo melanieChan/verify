@@ -46,30 +46,13 @@ export default function App() {
   // after submitting the form, we want to show Notification
   const [showNotification, setShowNotification] = React.useState(false)
 
+  // search result content to display
   const [recordRecipient, setRecordRecipient] = React.useState("")
   const [recordVerifier, setRecordVerifier] = React.useState("")
   const [recordDate, setRecordDate] = React.useState("")
 
-  // The useEffect hook can be used to fire side-effects during render
-  // Learn more: https://reactjs.org/docs/hooks-intro.html
-  React.useEffect(
-    () => {
-      // in this case, we only care to query the contract when signed in
-      if (window.walletConnection.isSignedIn()) {
-
-        // load data from contract
-        window.contract.getGreeting({ accountId: window.accountId })
-          .then(greetingFromContract => {
-            setGreeting(greetingFromContract)
-          })
-      }
-    },
-
-    // The second argument to useEffect tells React when to re-run the effect
-    // Use an empty array to specify "only run on first render"
-    // This works because signing into NEAR Wallet reloads the page
-    []
-  )
+  // list of recent recipients
+  const [recentRecipients, setRecentRecipients] = React.useState([])
 
   // transaction hash needed for transaction link to Near explorer
   const [hash, setHash] = React.useState("")
@@ -150,8 +133,7 @@ export default function App() {
             <Button variant="outlined" style={{ color: 'turquoise', borderColor: "darkturquoise"}} onClick={(e) => {
                 e.preventDefault();
                 window.open('https://explorer.testnet.near.org/transactions/', '_blank');
-                }}>
-                See Transaction</Button>
+                }}> See Transaction</Button>
           </div>
           :
           <></>
@@ -161,6 +143,31 @@ export default function App() {
     )
   }
 
+  // div of a single recent recipient
+  function RecipientDetails(props) {
+    return (
+      <div style={{ backgroundColor: 'rgb(255, 255, 255, 0.05)', padding: '20px' }}>
+        <p>{props.recipient}</p>
+
+        {/*  delete button */}
+        <button onClick={ async event => {
+          event.preventDefault()
+          try {
+            // delete from backend
+            await window.contract.deleteCertificate({
+              recipient: props.recipient
+            })
+          } catch (e) {
+            alert(e)
+        }
+        // delete from frontend: make new array by copying over all values except value to be deleted
+        setRecentRecipients( recentRecipients.filter(otherRecipient => otherRecipient != props.recipient) )
+      }}> revoke </button>
+      </div>
+    );
+  }
+
+// if signed in
   return (
     <>
       <MyAppBar/>
@@ -217,6 +224,9 @@ export default function App() {
           // update local `greeting` variable to match persisted value
           setGreeting(newGreeting)
 
+          // add to list to be displayed
+          recentRecipients.push(newGreeting);
+
           setShowNotification(true)
 
           // remove Notification again after css animation completes
@@ -261,20 +271,11 @@ export default function App() {
         {/*  details of certificate sent */}
         <div>
           <p>Vaccination certificate sent to: </p>
-          <div style={{ backgroundColor: 'rgb(255, 255, 255, 0.05)', padding: '20px' }}>
-            <p>{greeting}</p>
-          {/*  delete button */}
-          <button onClick={ async event => {
-            event.preventDefault()
-            try {
-              await window.contract.deleteCertificate({
-                recipient: greeting
-              })
-            } catch (e) {
-              alert(e)
-          }
-        }}> revoke </button>
-        </div>
+
+          { /* temporary list of recent recipients */
+            recentRecipients.map((recipient) =>
+            <RecipientDetails recipient={recipient} />
+          )}
 
         </div>
         {/*

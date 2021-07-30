@@ -30,7 +30,7 @@ const certificates = new PersistentMap<string, CertificateInfo>("certificates li
 const senderToRecipients = new PersistentMap<string, PersistentSet<string>>("lists of verified people for each sender");
 
 const CERT_LIMIT = 10;  // max number of certificates retrieved at a time
-const recipientsArray = new Array<string>(100);
+// const recipientsArray = new Array<string>(100);
 
 // Exported functions will be part of the public interface for your smart contract.
 // Feel free to extract behavior to non-exported functions!
@@ -44,13 +44,6 @@ export function getGreeting(accountId: string): string | null {
 
 export function setGreeting(recipient: string): void {
   const sender = Context.sender
-
-  // Use logging.log to record logs permanently to the blockchain!
-  logging.log(
-    // String interpolation (`like ${this}`) is a work in progress:
-    // https://github.com/AssemblyScript/assemblyscript/pull/1115
-    'Saving greeting "' + recipient + '" for account "' + sender + '"'
-  )
 
   // add cert to map
   certificates.set(recipient, {
@@ -75,8 +68,6 @@ export function setGreeting(recipient: string): void {
 // senderToRecipients.set(sender, recipientList)
 //
 // console.log(`after adding`);
-
-  storage.set(sender, recipient)
 }
 
 // deletes a specific cert from map
@@ -100,7 +91,7 @@ export function findCertificate(recipient: string): CertificateInfo | null {
 
 export function getCertificates(): string[] {
   const result = new Array<string>(CERT_LIMIT);
-  console.log(recipientsArray[0]);
+  // console.log(recipientsArray[0]);
   // add up to a certain limit
   // for(let i = 0; i < CERT_LIMIT; i++) {
   //     console.log(recipientsArray[i]);
